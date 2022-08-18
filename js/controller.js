@@ -1,6 +1,7 @@
 let x = 3;
-        changeScreen(x);
+changeScreen(x);
     function changeScreen(x){
+        
         switch(x){
         case 1:
             //screen 1 (start up page)
@@ -16,6 +17,7 @@ let x = 3;
             break;
         case 4: 
             //screen 4 (game page)
+            loadScript("js/tetris.js");
             break;
         }
     }
