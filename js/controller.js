@@ -1,15 +1,15 @@
-let x = 3;
-changeScreen(x);
-    function changeScreen(x){
-        
-        switch(x){
+let screenNum = 3;
+
+changeScreen(screenNum);
+    function changeScreen(screenNum){
+        switch(screenNum){
         case 1:
             //screen 1 (start up page)
-            //loadScript("js/settings.js");
+            //loadScript("js/startup.js");
             break;
         case 2: 
             //screen 2 (top score page)
-            //loadScript("js/settings.js");
+            //loadScript("js/highScore.js");
             break;
         case 3:
             //screen 3 (configure page)
