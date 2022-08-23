@@ -1,3 +1,4 @@
+
 var config = {
     type: Phaser.AUTO, //default renders in openGL if available, switches to Canvas if not
     width: 1280, //Game canvas size
