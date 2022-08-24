@@ -1,11 +1,11 @@
-let screenNum = 1;
+let screenNum = 3;
 
 changeScreen(screenNum);
     function changeScreen(screenNum){
         switch(screenNum){
         case 1:
             //screen 1 (start up page)
-            loadScript("js/startup.js");
+            loadScript("startup.js");
             break;
         case 2: 
             //screen 2 (top score page)
@@ -13,11 +13,11 @@ changeScreen(screenNum);
             break;
         case 3:
             //screen 3 (configure page)
-            loadScript("js/settings.js");
+            loadScript("settings.js");
             break;
         case 4: 
             //screen 4 (game page)
-            loadScript("js/tetris.js");
+            loadScript("tetris.js");
             break;
         }
     }
