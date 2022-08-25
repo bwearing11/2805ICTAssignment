@@ -9,5 +9,5 @@ var config = {
 };
 
 let game = new Phaser.Game(config);
- game.scene.add(SettingsScene);
- game.scene.start('SettingsScene');
+ game.scene.add(StartupScene);
+ game.scene.start('StartupScene');
