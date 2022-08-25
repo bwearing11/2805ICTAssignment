@@ -1,41 +1,31 @@
+class TetrisScene extends Phaser.Scene{
 
-var config = {
-    type: Phaser.AUTO, //default renders in openGL if available, switches to Canvas if not
-    width: 1280, //Game canvas size
-    height: 960,
-    GameVersion: 0.1, //Current version of the game
-    autoCenter: Phaser,
-    scene: {
-        preload: preload, //runs the preload function
-        create: create, //runs the create function
-        update: update //runs the update function
+    constructor(){
+        super("TetrisScene");
     }
-};
-
-var game = new Phaser.Game(config);
 
 //var gameTick = Phaser.Timer.SECOND;
-var gameSpeed = 1;
+     gameSpeed = 1;
 
-var extended = false; //stores gamemode state
-var gameOver = false; //stores the game over state
-var aiMode = false; // stores the ai game mode state
-var pauseState = false; // stores the pause state
-var mutedSound = false; // checks if game is muted
+ extended = false; //stores gamemode state
+ gameOver = false; //stores the game over state
+ aiMode = false; // stores the ai game mode state
+ pauseState = false; // stores the pause state
+ mutedSound = false; // checks if game is muted
 
-var gameSizeWidth = 10; //stores the gamefield size - replace with variables
-var gameSizeHeight = 20;
+ gameSizeWidth = 10; //stores the gamefield size - replace with variables
+ gameSizeHeight = 20;
 
-var blockSize = 32; //pixel size of the blocks
-var numberOfPiecesStandard = 7; //number of tetrominoes in standard game
-var numberOfPiecesExtended = 9; //number of tetrominoes in extended game
-var nextBlock = 0; // stores the index for next block
+ blockSize = 32; //pixel size of the blocks
+ numberOfPiecesStandard = 7; //number of tetrominoes in standard game
+ numberOfPiecesExtended = 9; //number of tetrominoes in extended game
+ nextBlock = 0; // stores the index for next block
 
-var takenSpace = 1; //keeps track of borders and fallen tetrominoes
-var currentGameScore = 0; //initalisation variable for the score
-var scoreValues = [100,300,600,1000]; //list of scores depending on lines filled
+ takenSpace = 1; //keeps track of borders and fallen tetrominoes
+ currentGameScore = 0; //initalisation variable for the score
+ scoreValues = [100,300,600,1000]; //list of scores depending on lines filled
 
-var blockPosition = {
+ blockPosition = {
     0 : [[0,-1],[0,0],[0,1],[1,1], 4], // Left L
     1 : [[0,-1],[0,0],[0,1],[-1,1], 4], // Right L
     2 : [[-1,0],[0,0],[1,0],[2,0], 4], // Straight
@@ -47,9 +37,9 @@ var blockPosition = {
     8 : [[-1,0],[0,0],[1,0], 3] //small straight
 };
 
-function preload () // preloads all the assets at games initialisation
+ preload () // preloads all the assets at games initialisation
 {
-    this.load.image('bgimage', 'Assets/bgimage.png');
+    this.load.image('bgimage', 'Assets/bgimage1.png');
     this.load.image('borderblock', 'Assets/borderblock.png');
     this.load.image('leftlblock', 'Assets/leftlblock.png');
     this.load.image('leftzigblock', 'Assets/leftzigblock.png');
@@ -60,9 +50,10 @@ function preload () // preloads all the assets at games initialisation
     this.load.image('tblock', 'Assets/tblock.png');
 }
 
-function create ()
+ create ()
 {
-    this.add.image(0, 0, 'bgimage').setOrigin(0,0); 
+    
+    this.add.image(0, 0, 'bgimage').setOrigin(0,0);
 
     var fieldArray = [];
     var fieldSprites = []; 
@@ -85,9 +76,8 @@ function create ()
     }
 }
 
-function update ()
+ update ()
 {
+    
 }
-
-
-
+}
