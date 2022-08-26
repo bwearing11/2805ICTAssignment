@@ -2,7 +2,7 @@
 class StartupScene extends Phaser.Scene{
 
     constructor(){
-        super("startup");
+        super("StartupScene");
     }
 
  preload(){
@@ -22,7 +22,7 @@ class StartupScene extends Phaser.Scene{
     this.add.image(256, 447, 'button').setOrigin(0,0).setInteractive()
     .setOrigin(0,0)
     .setInteractive()
-    .on('pointerdown', () => this.scene.start("TetirsScene"));
+    .on('pointerdown', () => this.scene.start("TetrisScene"));
     this.add.image(480, 447, 'button').setOrigin(0,0).setInteractive()
     .setOrigin(0,0)
     .setInteractive()
