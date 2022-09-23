@@ -1,0 +1,16 @@
+{
+"scores":[
+    {"name" : "ZOE", "score" : "100000"},
+    {"name" : "BOB", "score" : "90000"},
+    {"name" : "POW", "score" : "80000"},
+    {"name" : "ZOE", "score" : "70000"},
+    {"name" : "BOB", "score" : "60000"},
+    {"name" : "POW", "score" : "50000"},
+    {"name" : "ZOE", "score" : "40000"},
+    {"name" : "BOB", "score" : "30000"},
+    {"name" : "POW", "score" : "20000"},
+    {"name" : "BOB", "score" : "10000"},
+    {"name" : "POW", "score" : "5000"}
+    
+]
+}

@@ -1,20 +1,19 @@
-class HighscoreScene extends Phaser.Scene {
+
+class HighscoreScene extends Phaser.Scene {//loads scene
   constructor ()
   {
     super('HighscoreScene');
   }
-  preload (){
-        //this.load.setBaseURL('https://labs.phaser.io')
+  preload (){// Preloads assets
         this.load.image('bgimage', 'assets/bgimage.png');
         this.load.image('highscoretitle', 'assets/highscoretitle.png')
         this.load.image('backbutton', 'assets/backbutton.png')
       }
 
-  create () {   
-        
+  create () { 
+    //creates GUI
     const sky = this.add.image(0, 0, 'bgimage').setOrigin(0,0);
     const heading = this.add.image(config.width/2, 150, 'highscoretitle')
-
     var fontSize = '40px'
     var headingFontSize = '60px'
     const rankH = this.add.text(config.width/2 - 350, 300, 'Rank', { font: headingFontSize, fill: '#000000' });
@@ -23,7 +22,7 @@ class HighscoreScene extends Phaser.Scene {
     const rank = this.add.text(config.width/2 - 250, 375, '', { font: fontSize, fill: '#000000' });
     const name = this.add.text(config.width/2, 375, '', { font: fontSize, fill: '#000000' });
     const score = this.add.text(config.width/2 + 250, 375, '', { font: fontSize, fill: '#000000' });
-
+    //displays scores
       rank.setText([
                  ' 1  ',' 2  ', ' 3  ', ' 4  ',' 5  ',
                 ' 6  ',' 7  ',' 8  ',' 9  ',' 10 ',
@@ -36,9 +35,9 @@ class HighscoreScene extends Phaser.Scene {
                 ' 100000  ',' 40000  ', ' 30000 ', ' 25000  ',' 20000  ',
                 ' 17000  ',' 16000  ',' 15000  ',' 14000  ',' 13000 ',
             ]);
-
-    const button = this.add.image(config.width/8, 150, 'backbutton')
-    .setScale(0.25)
+    //button to return to main menu
+    const button = this.add.image(config.width/2, 850, 'backbutton')
+    .setScale(0.35)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => this.scene.start('StartupScene'));
   

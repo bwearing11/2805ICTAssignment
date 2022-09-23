@@ -1,4 +1,8 @@
-class TetrisScene extends Phaser.Scene{
+/*
+This file contains the script to run the actual game logic of the tetris game.
+*/
+
+class TetrisScene extends Phaser.Scene{//tells the game engine which scene this file contains
 
     constructor(){
         super("TetrisScene");
@@ -22,10 +26,11 @@ preload () // preloads all the assets at games initialisation
     this.load.image('tblock', 'Assets/tblockfull.png');
 }
 
-create ()
+create ()//the game engines create function, it runs static code that doesnt require updating
 {   
-    console.log("Create")
-    let createGUI = () =>{
+    console.log("Create")//debugging comment to show current game step
+
+    let createGUI = () =>{ //function that builds the graphical interface, such as background, text and title images
         this.add.image(0, 0, 'bgimage').setOrigin(0,0); 
         this.add.rectangle(fieldCords[0], fieldCords[1]+(blockSize*2.5), gameSizeWidth*blockSize,gameSizeHeight*blockSize, 0x737373).setOrigin(0,0);
         var title = this.add.image(config.width/2, 70, 'title')
@@ -47,17 +52,17 @@ create ()
         modetext.setScale((1.5))
     }
     
-    let createFieldArray = () => {
+    let createFieldArray = () => {//fills the array with a matrix the size of the game field
         for(var i = 0; i < gameSizeHeight + 4; i++){
-            var col = [];
+            var column = [];
             for(var j = 0; j < gameSizeWidth + 2; j++) {
-                col.push(0);
+                column.push(0);
             }
-            fieldArray.push(col);
+            fieldArray.push(column);
         }
     }
 
-    let createGamefield = (x, y) => {
+    let createGamefield = (x, y) => {//creates a border around the gamefield with grey blocks
         for (var i = 0; i < fieldArray.length; i++){
             fieldArray[i][0] = 1
             fieldArray[i][gameSizeWidth + 2] = 1
@@ -72,27 +77,23 @@ create ()
         }
     }
 
-    let createTetromino = (piece, x, y) => {//Creates the tetromino gameobject(Used arrow function to keep in scope of the game)
-        //var originx = blockPosition[piece][0][0]; //saves origin postion which is used as the rotation centre point
-        //var originy = blockPosition[piece][0][1];
-        //for (var i = 0; i < blockPosition[piece].length; i++){ //creates sprites for each block of the tetromino
-            //this.blocks = new Phaser.Physics.Matter.Sprite(this.matter.world, x + (blockPosition[piece][i][0]*blockSize), y - (blockPosition[piece][i][1]*blockSize), blockTextures[piece]);
-            //var cobject = this.add.sprite(x + (blockPosition[piece][i][0]*blockSize), y - (blockPosition[piece][i][1]*blockSize), blockTextures[piece]).setInteractive
-
-        //} 
-        this.tetromino = new Phaser.Physics.Matter.Sprite(this.matter.world, (x + blockOrigins[piece][0]), (y + blockOrigins[piece][1]), blockTextures[piece]);
+    let createTetromino = (piece, x, y) => {//creates the initial tetromino, note: need to figure out how to make global for use in update()
+        if (piece == 2){//checks for the straight as its point of origin has to be adjusted by the game engine for correct rotation point.
+            this.tetromino = new Phaser.Physics.Matter.Sprite(this.matter.world, (x + blockOrigins[piece][0]), (y + blockOrigins[piece][1]), blockTextures[piece]).setOrigin(0.5,0.375)
+        }
+        else{
+            this.tetromino = new Phaser.Physics.Matter.Sprite(this.matter.world, (x + blockOrigins[piece][0]), (y + blockOrigins[piece][1]), blockTextures[piece]);
+        }
         this.add.existing(this.tetromino);
         for (var i = 0; i < blockPosition[piece].length; i++){
             var iterBlockPosX = blockPosition[piece][i][0] + Math.floor((gameSizeWidth+2)/2);
             var iterBlockPosY = blockPosition[piece][i][1]+3;
             currentPosition.push([iterBlockPosX,iterBlockPosY]);
         }
-        console.log(currentPosition)
 
-        return currentPosition
     }
 
-    let pauseMenu = () => {
+    let pauseMenu = () => {//creates and handles function of the pause menu
         var escBg = this.add.rectangle(config.width/2, config.height/2, config.width/3, config.height/3,  0x464646, 30)
         var quitText = this.add.text(config.width/2 - 75, config.height/2 - 100, 'Quit?', { fill: '#ffffff'});
         quitText.setFontSize(60)
@@ -110,34 +111,49 @@ create ()
         return pauseMenuCont
     }
     
-    if (!extended){
-        var numberOfPieces = numberOfPiecesStandard;
-    } else{
-        var numberOfPieces = numberOfPiecesExtended;
-    }
 
-    currentPiece = Math.floor(Math.random() * numberOfPieces);
+
+    currentPiece = Math.floor(Math.random() * numberOfPieces);//picks a random number relative to the tetris pieces available
     nextPiece = Math.floor(Math.random() * numberOfPieces);
 
+    //initalising all the starting functions
     createGUI()
-    createFieldArray()
+    createFieldArray()//
     createGamefield(fieldCords[0], fieldCords[1])
-    
     createTetromino(currentPiece, pieceStartPoint[0], pieceStartPoint[1]);
-    this.add.image(fieldCords[0]+gameSizeWidth*blockSize+225, fieldCords[1]+(blockSize*2.5+90), blockTextures[nextPiece])
-    controls = this.input.keyboard.createCursorKeys();
-    console.log(fieldArray)
-    timedEvent = this.time.addEvent({ delay: gameSpeed, callback: onEvent, callbackScope: this, loop : true});
+    nextPieceImage = this.add.image(fieldCords[0]+gameSizeWidth*blockSize+225, fieldCords[1]+(blockSize*2.5+90), blockTextures[nextPiece])
+    controls = this.input.keyboard.createCursorKeys();//variable to hold the array of available interaction keys
+    console.log(fieldArray)//debug message to check the matrix has been correctly been drawn
+    timedEvent = this.time.addEvent({ delay: gameSpeed, callback: onEvent, callbackScope: this, loop : true});//the game timer
     var pauseMenuCont = pauseMenu()
 
-    this.input.keyboard.on('keydown-ESC', function (event) {
+    this.input.keyboard.on('keydown-ESC', function (event) {//displays the pause menu with 'ESC' which is set to invisible by default
         if (!pauseState){
             pauseState = true;
             pauseMenuCont.setVisible(true);
             
         }else if(pauseState){
-            pauseState = false;
             pauseMenuCont.setVisible(false);
+            pauseState = false;
+        }
+    
+    });
+    this.input.keyboard.on('keydown-P', function (event) {//displays the pause menu with 'ESC' which is set to invisible by default
+        if (!pauseState){
+            pauseState = true;
+            
+        }else if(pauseState){
+            pauseState = false;
+        }
+    
+    });
+
+    this.input.keyboard.on('keydown-m', function (event) {//mutes sound when 'm' is pressed, note: sound still need to be added
+        if (!mutedSound){
+            mutedSound = true;
+            
+        }else{
+            mutedSound = false;
         }
     
     });
@@ -145,9 +161,13 @@ create ()
 
 
 
-update ()
-{
-    var tetrominoVelocity = new Phaser.Math.Vector2();
+update ()//updates the game engine at 60 fps
+{   
+    var tetrominoVelocity = new Phaser.Math.Vector2();//declares how the tetromino will move in accordance to the physics engine
+    var nothing = [];//these two lines disable the colliding function of the physics engine as the array matrix controls the collision
+    this.tetromino.setCollidesWith(nothing)
+
+    //creates dynamic text that updates when needed
     scoretext.setText('Score: '+ currentGameScore)
     leveltext.setText('Level: '+ level)
     linetext.setText('Lines Cleared: '+ linesCleared)
@@ -162,14 +182,15 @@ update ()
         modetext.setText('AI Mode')
     }
 
-    if (this.input.keyboard.checkDown(controls.left, 250))
+
+    if (this.input.keyboard.checkDown(controls.left, 250))//moves the tetromino left when the left arrow key is pressed, with a 250ms delay inbetween
     {
   
-        for (var i = 0; i < currentPosition.length; i++){
+        for (var i = 0; i < currentPosition.length; i++){//checks if there is an obstacle and stops the input if there is
             var nextPosX = fieldArray[(currentPosition[i][1])][(currentPosition[i][0])-2];
 
             if (nextPosX == 1){
-                console.log("im not supposed to move now")
+                console.log("im not supposed to move now")//debug comment
                 canMove = false;
                 break
             }else{
@@ -179,21 +200,22 @@ update ()
 
         if (canMove && !pauseState){
             
-            for (var i = 0; i < currentPosition.length; i++){
+            for (var i = 0; i < currentPosition.length; i++){//moves the block to the left and updates the current position
                 currentPosition[i][0] -= 1;
+                console.log(currentPosition)
             }
             tetrominoVelocity.x -= 32
         }
     }
         
         
-    else if (this.input.keyboard.checkDown(controls.right, 250))
+    else if (this.input.keyboard.checkDown(controls.right, 250))//moves the tetromino right when the right arrow is pressed, with a 250ms delay inbetween
     {
-        for (var i = 0; i < currentPosition.length; i++){
+        for (var i = 0; i < currentPosition.length; i++){//checks if there is an obstacle and stops the input if there is
             var nextPosX = fieldArray[(currentPosition[i][1])][(currentPosition[i][0])+2];
 
             if (nextPosX == 1){
-                console.log("im not supposed to move now")
+                console.log("im not supposed to move now")//debug comment
                 canMove = false;
                 break
             }else{
@@ -201,155 +223,213 @@ update ()
             }
         }
 
-        if (canMove && !pauseState){
+        if (canMove && !pauseState){//moves the block to the right and updates the current position
             for (var i = 0; i < currentPosition.length; i++){
-                currentPosition[i][0] += 1;   
+                currentPosition[i][0] += 1; 
+                console.log(currentPosition)  
             }
             tetrominoVelocity.x += 32
         }
 
     }
 
-    //if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC))
-   // {
-    //    pauseState = true;
+    else if (this.input.keyboard.checkDown(controls.up, 450)){//rotates the block when the up arrow is pressed, with a 450ms delay inbetween
+        
+        if(r270){//checks which rotation stage the piece is on, listed backwards to avoid it triggering twice when the state changes
+            var newXPos = [];
+            var newYPos = [];
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//takes away the previous matrix position and adds the next rotation positions 
+                var iterRotX = currentPosition[i][0] - rotation3[currentPiece][i][0];
+                var iterRotY = currentPosition[i][1] - rotation3[currentPiece][i][1];
+                newXPos.push(iterRotX + blockPosition[currentPiece][i][0]);
+                newYPos.push(iterRotY + blockPosition[currentPiece][i][1]);
+            } 
 
-
-   // }
-
-
-    if (this.input.keyboard.checkDown(controls.up, 150))
-   {/*
-        if(r0){
-            for (var i = 0; i < currentPosition.length; i++){
-                var checkCurrentXPos = (currentPosition[i][0]-blockPosition[currentPiece][i][0]) + rotation1[currentPiece][i][0]
-                for (var j = 0; j< currentPosition.length; i++){
-                    var checkCurrentYPos = (currentPosition[0][j] - blockPosition[currentPiece][0][j]) + rotation1[currentPiece][0][j]
-                }
-            }
-                var checkCurrentPos = [checkCurrentXPos,checkCurrentYPos]
-                var nextPosX = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-                var nextPosY = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-
-            if (nextPosX == 1|| nextPosY == 1){
-                canMove = false;
-            }else{
-                canMove = true;
-                currentPosition = checkCurrentPos
-            }
-        }
-
-        if(r90){
-            for (var i = 0; i < currentPosition.length; i++){
-                var checkCurrentXPos = currentPosition[i][0] - checkCurrentPos[1] + rotation2[currentPiecee][i][0]
-                for (var j = 0; j< currentPosition.length; i++){
-                    var checkCurrentYPos = currentPosition[0][j] + rotation2[currentPiece][0][j]
-                }
-            }
-                var checkCurrentPos = [checkCurrentXPos,checkCurrentYPos]
-                var nextPosX = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-                var nextPosY = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-
-            if (nextPosX == 1|| nextPosY == 1){
-                canMove = false;
-            }else{
-                canMove = true;
-                currentPosition = checkCurrentPos
-            }
-        }
-
-        if(r180){
-            for (var i = 0; i < currentPosition.length; i++){
-                var checkCurrentXPos = currentPosition[i][0] + rotation3[currentPiece][i][0]
-                for (var j = 0; j< currentPosition.length; i++){
-                    var checkCurrentYPos = currentPosition[0][j] + rotation3[currentPiece][0][j]
-                }
-            }
-                var checkCurrentPos = [checkCurrentXPos,checkCurrentYPos]
-                var nextPosX = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-                var nextPosY = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-
-            if (nextPosX == 1|| nextPosY == 1){
-                canMove = false;
-            }else{
-                canMove = true;
-                currentPosition = checkCurrentPos
-            }
-
-        if(r270){
-                for (var i = 0; i < currentPosition.length; i++){
-                    var checkCurrentXPos = currentPosition[i][0] + blockPosition[currentPiece][i][0]
-                    for (var j = 0; j< currentPosition.length; i++){
-                        var checkCurrentYPos = currentPosition[0][j] + blockPosition[currentPiece][0][j]
-                    }
-                }
-                    var checkCurrentPos = [checkCurrentXPos,checkCurrentYPos]
-                    var nextPosX = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-                    var nextPosY = fieldArray[(checkCurrentPos[i][1])+1][(checkCurrentPos[i][0])];
-    
-                if (nextPosX == 1|| nextPosY == 1){
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//makes sure there is room to rotate
+                if (fieldArray[newYPos[i]][newXPos[i]] == 1) {
                     canMove = false;
-                }else{
-                    canMove = true;
-                    currentPosition = checkCurrentPos
+                    console.log("im not supposed to move now")
+                    break;
                 }
+                else{
+                    canMove = true;
+                    r270 = false;//changes rotation state
+                    r0 = true;                    
+                }   
             }
-            */
-        if (canMove && !pauseState){
+        }
+
+        else if(r180){//checks which rotation stage the piece is on, listed backwards to avoid it triggering twice when the state changes
+                        //Note: reduce redundancy
+            var newXPos = [];
+            var newYPos = [];
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//takes away the previous matrix position and adds the next rotation positions
+                var iterRotX = currentPosition[i][0] - rotation2[currentPiece][i][0];
+                var iterRotY = currentPosition[i][1] - rotation2[currentPiece][i][1];
+                newXPos.push(iterRotX + rotation3[currentPiece][i][0]);
+                newYPos.push(iterRotY + rotation3[currentPiece][i][1]);
+            } 
+
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//makes sure there is room to rotate
+                if (fieldArray[newYPos[i]][newXPos[i]] == 1) {
+                    canMove = false;
+                    console.log("im not supposed to move now")
+                    break;
+                }
+                else{
+                    canMove = true;
+                    r180 = false;//changes rotation state
+                    r270 = true;
+                }   
+            }
+        }
+        else if(r90){//checks which rotation stage the piece is on, listed backwards to avoid it triggering twice when the state changes
+            var newXPos = [];
+            var newYPos = [];
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//takes away the previous matrix position and adds the next rotation positions
+                var iterRotX = currentPosition[i][0] - rotation1[currentPiece][i][0];
+                var iterRotY = currentPosition[i][1] - rotation1[currentPiece][i][1];
+                newXPos.push(iterRotX + rotation2[currentPiece][i][0]);
+                newYPos.push(iterRotY + rotation2[currentPiece][i][1]);
+            } 
+
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//makes sure there is room to rotate
+                if (fieldArray[newYPos[i]][newXPos[i]] == 1) {
+                    canMove = false;
+                    console.log("im not supposed to move now")
+                    break;
+                }
+                else{
+                    canMove = true;
+                    r90 = false;//changes rotation state
+                    r180 = true;                    
+                }   
+            } 
+        }
+        else if(r0){//checks which rotation stage the piece is on, listed backwards to avoid it triggering twice when the state changes
+            var newXPos = [];
+            var newYPos = [];
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//takes away the previous matrix position and adds the next rotation positions
+                var iterRotX = currentPosition[i][0] - blockPosition[currentPiece][i][0];
+                var iterRotY = currentPosition[i][1] - blockPosition[currentPiece][i][1];
+                newXPos.push(iterRotX + rotation1[currentPiece][i][0]);
+                newYPos.push(iterRotY + rotation1[currentPiece][i][1]);
+            } 
+
+            for (var i = 0; i < blockPosition[currentPiece].length; i++){//makes sure there is room to rotate
+                if (fieldArray[newYPos[i]][newXPos[i]] == 1) {
+                    canMove = false;
+                    console.log("im not supposed to move now")
+                    break;
+                }
+                else{
+                    canMove = true;
+                    r0 = false;//changes rotation state
+                    r90 = true;                    
+                }   
+            }         
+        }
+        
+
+        
+        if (canMove && !pauseState){//rotates the tetris piece clockwise and updates the matrix positions
 
             this.tetromino.angle += 90;
-            
-            }
+            this.time.addEvent(timedEvent)
+            currentPosition = [];
+                for (var i = 0; i < blockPosition[currentPiece].length; i++){
+                        currentPosition.push([newXPos[i], newYPos[i]]);
+                } 
+            console.log(currentPosition) //debug comment to check the rotation calculations are correct       
+        }
 
-        }else if (this.input.keyboard.checkDown(controls.down, 150))
-    {
-        for (var i = 0; i < currentPosition.length; i++){
-            var nextPosY = fieldArray[(currentPosition[i][1])+1][(currentPosition[i][0])];
+        }else if (this.input.keyboard.checkDown(controls.down, 150)){//moves the piece down when the down arrow is pressed, with a delay of 150ms in between
+            for (var i = 0; i < currentPosition.length; i++){//updates matrix position
+                var nextPosY = fieldArray[(currentPosition[i][1])+1][(currentPosition[i][0])];
 
-            if (nextPosY == 1){
-                console.log("im not supposed to move now")
-
-                canMove = false;
-                break
+                if (nextPosY == 1){//checks for obstacles
+                    console.log("im not supposed to move now")//debug comment
+                    canMove = false;
+                    break;
             }else{
                 canMove = true;
             }
         }
 
         if (canMove && !pauseState){
-            for (var i = 0; i < currentPosition.length; i++){
-                currentPosition[i][1] += 1;   
+            for (var i = 0; i < currentPosition.length; i++){//moves the piece down and updates matrix
+                this.time.addEvent(timedEvent);
+                currentPosition[i][1] += 1;
+                console.log(currentPosition)
             }
             tetrominoVelocity.y += 32
         }
     }
+    this.tetromino.setVelocity(tetrominoVelocity.x, tetrominoVelocity.y);//tells the physics engine the tetris piece will travel on 2 axis
+
+    if (pieceSwap){//pause the timer and does all the processing needed inbetween pieces, note: make functions for each process, current problem = scope limitations
+        this.tetromino.setActive(false)//these two lines deactivate the players and physics engines control over the current tetromino
+        this.tetromino.setStatic(true)
+        for (var i = 0; i < blockPosition[currentPiece].length; i++){//saves the current position into the field array, making it an obstacle and part of the game field
+            fieldArray[currentPosition[i][1]][currentPosition[i][0]] = 1;
+        }
+        console.log(fieldArray);//debug comment to check the block was saved in the right position
+
+        //the following section is a copy of the createTetromino() function, requires a global function or class but current issues with scope
+        var x = pieceStartPoint[0];
+        var y = pieceStartPoint[1];
+        currentPosition = []
+        if (nextPiece == 2){
+            this.tetromino = new Phaser.Physics.Matter.Sprite(this.matter.world, (x + blockOrigins[nextPiece][0]), (y + blockOrigins[nextPiece][1]), blockTextures[nextPiece]).setOrigin(0.5,0.375)
+        }
+        else{
+            this.tetromino = new Phaser.Physics.Matter.Sprite(this.matter.world, (x + blockOrigins[nextPiece][0]), (y + blockOrigins[nextPiece][1]), blockTextures[nextPiece]);
+        }
+        this.add.existing(this.tetromino);
+        for (var i = 0; i < blockPosition[nextPiece].length; i++){
+            var iterBlockPosX = blockPosition[nextPiece][i][0] + Math.floor((gameSizeWidth+2)/2);
+            var iterBlockPosY = blockPosition[nextPiece][i][1]+3;
+            currentPosition.push([iterBlockPosX,iterBlockPosY]);
+        }
+
+        //replace the next piece display, Note: needs function
+        nextPieceImage.destroy();
+        currentPiece = nextPiece
+        nextPiece = Math.floor(Math.random() * numberOfPieces);
+        nextPieceImage = this.add.image(fieldCords[0]+gameSizeWidth*blockSize+225, fieldCords[1]+(blockSize*2.5+90), blockTextures[nextPiece])
+
+        
+        pieceSwap = false;//resumes timer
 
 
-    this.tetromino.setVelocity(tetrominoVelocity.x, tetrominoVelocity.y);
+    }
 
 }
 }
 
-function onEvent()
+function onEvent()//function for timer processing
 {
-    var tetrominoVelocity = new Phaser.Math.Vector2();
-    for (var i = 0; i < currentPosition.length; i++){
+    var tetrominoVelocity = new Phaser.Math.Vector2();//reinitialising the physics engine so its in scope
+    for (var i = 0; i < currentPosition.length; i++){//checks to see if the piece can move down
         var nextPosX = fieldArray[(currentPosition[i][1])+1][(currentPosition[i][0])];
 
-        if (nextPosX == 1  && !pauseState){
+        if (nextPosX == 1  && !pauseState){//if the piece can't move, the tetromino becomes inactive and new one spawns
             canMove = false;
+            
+            pieceSwap = true;
             break
         }else{
             canMove = true;
         }
     }
 
-    if (canMove && !pauseState){
+    if (canMove && !pauseState){// if the piece can move and the timer runs out, move down a space
         this.time.addEvent(timedEvent);
         for (var i = 0; i < currentPosition.length; i++){
-            currentPosition[i][1] += 1;   
+            currentPosition[i][1] += 1;
+            console.log(currentPosition)
         }
         tetrominoVelocity.y += 32
     }
-    this.tetromino.setVelocity(tetrominoVelocity.x, tetrominoVelocity.y);
+    this.tetromino.setVelocity(tetrominoVelocity.x, tetrominoVelocity.y);//same as in update(), just reinitalisting to keep in scope
 }
