@@ -136,16 +136,19 @@ class SettingsScene extends Phaser.Scene{
                 medLevelCheck.setVisible(false);
                 hardLevelCheck.setVisible(false);
                 level = 1
+                console.log(level)
             }else if (state == 2){
                 easyLevelCheck.setVisible(false);
                 medLevelCheck.setVisible(true);
                 hardLevelCheck.setVisible(false);
                 level = 2
+                console.log(level)
             }else if(state == 3){
                 easyLevelCheck.setVisible(false);
                 medLevelCheck.setVisible(false);
                 hardLevelCheck.setVisible(true);
                 level = 3
+                console.log(level)
             }
         }
 
